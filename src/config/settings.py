@@ -9,6 +9,12 @@ class Settings(BaseSettings):
     MAX_RETRIES: int = 2
     USE_MOCK: bool = True
 
+    LANGFUSE_PUBLIC_KEY: str = ""
+    LANGFUSE_SECRET_KEY: str = ""
+    LANGFUSE_BASE_URL: str = "https://cloud.langfuse.com"
+
+    EVAL_MODEL: str = "gpt-4o"  # Judge model
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

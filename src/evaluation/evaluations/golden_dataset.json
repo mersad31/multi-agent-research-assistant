@@ -1,0 +1,11 @@
+[
+  {
+    "query": "مثال: تفاوت React و Vue در مقیاس‌پذیری چیست؟",
+    "expected_key_points": [
+      "React از Virtual DOM استفاده می‌کند",
+      "Vue رندرینگ واکنشی‌تری دارد"
+    ],
+    "category": "technology",
+    "ground_truth": ""
+  }
+]
