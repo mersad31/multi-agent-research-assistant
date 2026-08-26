@@ -65,35 +65,43 @@ async def stream_graph_events(
         input_state: dict[str, Any],
         config: dict[str, Any] | None = None
 ) -> AsyncGenerator[str, None]:
-    async for event in graph.astream_events(input_state, config, version="v2"):
-        event_type = event.get("event")
-        node_name = _get_node_name(event)
+    try:
+        async for event in graph.astream_events(input_state, config, version="v2"):
+            event_type = event.get("event")
+            node_name = _get_node_name(event)
 
-        if event_type == "on_chain_start" and node_name in _NODE_MESSAGES:
-            yield _to_sse(
-                {
-                    "type": "event",
-                    "node": node_name,
-                    "message": _status_message(node_name),
-                }
-            )
-
-        elif event_type == "on_chat_model_stream":
-            # Only stream final report tokens. Planner/reviewer may also call LLMs.
-            if node_name != PUBLISHER_NODE:
-                continue
-
-            data = event.get("data") or {}
-            chunk = event.get("chunk")
-            token = _extract_chunk_text(chunk)
-
-            if token:
+            if event_type == "on_chain_start" and node_name in _NODE_MESSAGES:
                 yield _to_sse(
                     {
-                        "type": "token",
+                        "type": "event",
                         "node": node_name,
-                        "token": token,
+                        "message": _status_message(node_name),
                     }
                 )
+
+            elif event_type == "on_chat_model_stream":
+                # Only stream final report tokens. Planner/reviewer may also call LLMs.
+                if node_name != PUBLISHER_NODE:
+                    continue
+
+                data = event.get("data") or {}
+                chunk = event.get("chunk")
+                token = _extract_chunk_text(chunk)
+
+                if token:
+                    yield _to_sse(
+                        {
+                            "type": "token",
+                            "node": node_name,
+                            "token": token,
+                        }
+                    )
+
+    except Exception as e:
+        yield _to_sse({
+            "type": "error",
+            "message": "An internal error occurred while processing your request."
+        })
+        return
 
     yield _to_sse({"type": "done"})
