@@ -13,6 +13,7 @@ def main():
         "messages": [],
         "query": "which materials used for product a gasoline engine?",          # write a research question
         "sub_tasks": [],
+        "current_sub_tasks": [],
         "sources": [],
         "findings": [],
         "report": "",
