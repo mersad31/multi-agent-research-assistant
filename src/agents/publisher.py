@@ -24,7 +24,11 @@ _PUBLISHER_PROMPT = ChatPromptTemplate.from_messages([
     ("human", "Original Query: {query}\n\nSources:\n{sources_text}\n\nGenerate the final Markdown report:")
 ])
 
-_llm = ChatOpenAI(model=settings.PUBLISHER_MODEL_NAME, temperature=0.3)
+_llm = ChatOpenAI(
+    model=settings.PUBLISHER_MODEL_NAME,
+    api_key=settings.OPENAI_API_KEY,
+    temperature=0.3
+)
 _publisher_chain = _PUBLISHER_PROMPT | _llm
 
 
@@ -35,7 +39,7 @@ def publisher(state: GraphState) -> dict:
     if not sources:
         return {
             "report": "No sources were found to generate a report.",
-            "current_node": NodeStatus.PUBLISHER
+            "current_node": NodeStatus.PUBLISHER.value
         }
 
     sources_text = ""
@@ -55,10 +59,10 @@ def publisher(state: GraphState) -> dict:
         return {
             "report": report_content,
             "errors": [f"Publisher failed: {str(e)}"],
-            "current_node": NodeStatus.PUBLISHER
+            "current_node": NodeStatus.PUBLISHER.value
         }
 
     return {
         "report": report_content,
-        "current_node": NodeStatus.PUBLISHER
+        "current_node": NodeStatus.PUBLISHER.value
     }

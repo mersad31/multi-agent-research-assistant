@@ -11,14 +11,14 @@ from src.config.settings import settings
 
 
 def researcher(state: GraphState) -> dict:
-    sub_tasks = state.get("sub_tasks", [])
+    sub_tasks = state.get("current_sub_tasks", [])
     if not sub_tasks:
         return {
             "errors": ["No sub-tasks found to research."],
-            "current_node": NodeStatus.RESEARCHER
+            "current_node": NodeStatus.RESEARCHER.value
         }
 
-    search_tool = build_search_tool(use_mock=settings.USE_MOCK)
+    search_tool = build_search_tool(use_mock=settings.USE_MOCK, api_key=settings.TAVILY_API_KEY)
 
     new_findings: List[ResearchFinding] = []
     node_errors: List[str] = []
@@ -67,7 +67,7 @@ def researcher(state: GraphState) -> dict:
 
     return {
         "sources": [f.model_dump() for f in new_findings],
-        "current_node": NodeStatus.RESEARCHER,
+        "current_node": NodeStatus.RESEARCHER.value,
         "errors": node_errors
     }
 

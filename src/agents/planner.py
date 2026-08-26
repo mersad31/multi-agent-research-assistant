@@ -33,7 +33,11 @@ _PLANNER_PROMPT = ChatPromptTemplate.from_messages([
     ])
 
 
-_llm = ChatOpenAI(model=settings.MODEL_NAME, temperature=0)
+_llm = ChatOpenAI(
+    model=settings.MODEL_NAME,
+    api_key=settings.OPENAI_API_KEY,
+    temperature=0
+)
 _planner_chain = _PLANNER_PROMPT | _llm.with_structured_output(PlanOutput)
 
 
@@ -44,14 +48,16 @@ def planner (state: GraphState) -> dict:
 
     try:
         plan: PlanOutput = _planner_chain.invoke({"query": query})
+        sub_tasks_dump = [sub.model_dump() for sub in plan.sub_tasks]
 
         return {
-            "sub_tasks": [sub.model_dump() for sub in plan.sub_tasks],
-            "current_node": NodeStatus.PLANNER,
+            "sub_tasks": sub_tasks_dump,
+            "current_sub_tasks": sub_tasks_dump,
+            "current_node": NodeStatus.PLANNER.value,
             "errors": [],
         }
     except Exception as e:
         return {
             "errors": [f"Planner node failed: {str(e)}"],
-            "current_node": NodeStatus.PLANNER
+            "current_node": NodeStatus.PLANNER.value
         }

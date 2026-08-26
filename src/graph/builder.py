@@ -7,6 +7,7 @@ from src.agents.researcher import researcher
 from src.agents.reviewer import reviewer
 from src.agents.publisher import publisher
 from src.agents.planner import planner
+from src.agents.replanner import replanner
 
 from src.graph.router import route_after_review
 
@@ -20,6 +21,7 @@ def build_graph(checkpointer=None, interrupt_before=None):
 
     # Nodes
     graph.add_node("planner", planner)
+    graph.add_node("replanner", replanner)
     graph.add_node("researcher", researcher)
     graph.add_node("reviewer", reviewer)
     graph.add_node("publisher", publisher)
@@ -32,11 +34,11 @@ def build_graph(checkpointer=None, interrupt_before=None):
         "reviewer",
         route_after_review,
         {
-            "researcher": "researcher",
+            "replanner": "replanner",
             "publisher": "publisher",
         },
     )
-
+    graph.add_edge("replanner", "researcher")
     graph.add_edge("publisher", END)
 
     compile_kwargs = {"checkpointer": checkpointer}

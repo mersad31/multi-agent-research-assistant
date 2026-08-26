@@ -8,7 +8,7 @@ def route_after_review(state: GraphState) -> str:
         return "publisher"
 
     if is_sufficient is False:
-        return "researcher"
+        return "replanner"
 
     raise ValueError(
         "route_after_review called before Reviewer set 'is_sufficient'."

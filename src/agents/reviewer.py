@@ -28,7 +28,11 @@ _REVIEWER_PROMPT = ChatPromptTemplate.from_messages([
     ("human", "Original Query: {query}\n\nGathered Sources:\n{sources_text}\n\nEvaluate the research quality:")
 ])
 
-_llm = ChatOpenAI(model=settings.MODEL_NAME, temperature=0)
+_llm = ChatOpenAI(
+    model=settings.MODEL_NAME,
+    api_key=settings.OPENAI_API_KEY,
+    temperature=0
+)
 _reviewer_chain = _REVIEWER_PROMPT | _llm.with_structured_output(ReviewResult)
 
 
@@ -37,20 +41,28 @@ def reviewer(state: GraphState) -> dict:
     sources = state.get("sources")
     count_retries = state.get("count_retries")
     max_retries = state.get("max_retries")
-    existing_errors = state.get("errors") or []
 
     if count_retries >= max_retries:
         return {
             "is_sufficient": True,  # Force continue to Publisher
             "review_feedback": "Max retries reached.",
-            "errors": existing_errors + ["Max retries reached. Proceeding with existing findings."],
-            "current_node": NodeStatus.PUBLISHER
+            "errors": ["Max retries reached. Proceeding with existing findings."],
+            "current_node": NodeStatus.REVIEWER.value
+        }
+
+    if not sources:
+        return {
+            "is_sufficient": True,
+            "review_feedback": "No sources were found by the researcher; skipping further retries.",
+            "errors": ["Reviewer received empty sources. Likely a search/tool failure upstream."],
+            "current_node": NodeStatus.REVIEWER.value
         }
 
     sources_text = "\n".join([
         f"- {s['title']} ({s['url']}): {s['content'][:200]}..."
         for s in sources
     ])
+
 
     try:
         review_output: ReviewResult = _reviewer_chain.invoke({
@@ -60,22 +72,20 @@ def reviewer(state: GraphState) -> dict:
 
         is_suff = review_output.is_sufficient
 
-        new_errors = existing_errors if is_suff else existing_errors + [review_output.feedback]
-
         return {
             "is_sufficient": is_suff,
             "review_feedback": review_output.feedback if not is_suff else None,
-            "current_node": NodeStatus.REVIEWER,
-            "errors": new_errors,
+            "current_node": NodeStatus.REVIEWER.value,
+            "errors": [] if is_suff else [review_output.feedback],
             "count_retries": count_retries + 1 if not is_suff else count_retries
         }
 
     except Exception as e:
-
         return {
-            "errors": (state.get("errors") or []) + [f"Reviewer failed: {str(e)}"],
+            "errors":  [f"Reviewer failed: {str(e)}"],
             "is_sufficient": True,
             "review_feedback": None,
-            "count_retries": count_retries + 1
+            "count_retries": count_retries + 1,
+            "current_node": NodeStatus.REVIEWER.value
         }
 
