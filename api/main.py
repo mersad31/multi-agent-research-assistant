@@ -15,8 +15,6 @@ from api.streaming import stream_graph_events
 from src.config.settings import settings
 from src.graph.builder import build_graph
 
-
-
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Research Agent API")
