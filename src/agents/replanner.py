@@ -3,12 +3,9 @@ from __future__ import annotations
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
+from src.config.settings import settings
 from src.models.schemas import PlanOutput
 from src.state.graph_state import GraphState, NodeStatus
-
-from src.config.settings import settings
-
-
 
 _REPLANNER_SYSTEM_PROMPT = """
 You are a research re-planning specialist.
@@ -73,8 +70,8 @@ def replanner(state: GraphState) -> dict:
             "errors": [],
         }
 
-    except Exception as e:
+    except Exception as e: # noqa: BLE001 — LLM/tool failures are unpredictable; never crash the graph
         return {
-            "errors": [f"Replanner failed: {str(e)}"],
+            "errors": [f"Replanner failed: {e!s}"],
             "current_node": NodeStatus.REPLANNER.value
         }

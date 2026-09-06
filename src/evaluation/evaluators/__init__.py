@@ -1,1 +1,1 @@
-from src.evaluation.evaluators.ragas_evaluator import evaluate_state
+from src.evaluation.evaluators.ragas_evaluator import evaluate_state as evaluate_state

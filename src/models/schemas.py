@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-from typing import List
-
 from pydantic import BaseModel, Field
-
 
 
 class SubTask(BaseModel):
@@ -21,7 +18,7 @@ class SubTask(BaseModel):
 
 
 class PlanOutput(BaseModel):
-    sub_tasks: List[SubTask] = Field(
+    sub_tasks: list[SubTask] = Field(
         ...,
         description="A list of sub-tasks created by decomposing the user's main request.",
     )

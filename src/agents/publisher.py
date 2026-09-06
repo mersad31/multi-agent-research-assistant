@@ -3,9 +3,8 @@ from __future__ import annotations
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
-from src.state.graph_state import GraphState, NodeStatus
-
 from src.config.settings import settings
+from src.state.graph_state import GraphState, NodeStatus
 
 _PUBLISHER_SYSTEM_PROMPT = """
 You are a professional research writer and publisher.
@@ -54,11 +53,11 @@ def publisher(state: GraphState) -> dict:
 
         report_content = response.content if response.content else ""
 
-    except Exception as e:
-        report_content = f"# Research Report\n\nAn error occurred while generating the report: {str(e)}"
+    except Exception as e: # noqa: BLE001 — LLM/tool failures are unpredictable; never crash the graph
+        report_content = f"# Research Report\n\nAn error occurred while generating the report: {e!s}"
         return {
             "report": report_content,
-            "errors": [f"Publisher failed: {str(e)}"],
+            "errors": [f"Publisher failed: {e!s}"],
             "current_node": NodeStatus.PUBLISHER.value
         }
 

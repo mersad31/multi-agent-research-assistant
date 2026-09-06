@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import json
-from typing import Any, AsyncGenerator
-
-
+from collections.abc import AsyncGenerator
+from typing import Any
 
 PUBLISHER_NODE = "publisher"
 
@@ -84,7 +83,6 @@ async def stream_graph_events(
                 if node_name != PUBLISHER_NODE:
                     continue
 
-                data = event.get("data") or {}
                 chunk = event.get("chunk")
                 token = _extract_chunk_text(chunk)
 
@@ -97,7 +95,7 @@ async def stream_graph_events(
                         }
                     )
 
-    except Exception as e:
+    except Exception: # noqa: BLE001 — a mid-stream failure must degrade to an SSE error event, not crash the generator
         yield _to_sse({
             "type": "error",
             "message": "An internal error occurred while processing your request."

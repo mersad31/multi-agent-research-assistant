@@ -1,17 +1,14 @@
 from __future__ import annotations
 
 import logging
-from pydantic import BaseModel
 
 from fastapi import APIRouter
-
+from langfuse.langchain import CallbackHandler
+from pydantic import BaseModel
 from starlette.background import BackgroundTasks
 
-from src.evaluation.evaluators.ragas_evaluator import evaluate_state, evaluate_batch
 from src.evaluation.evaluate_pipeline import init_eval_component, load_golden_dataset
-
-from langfuse.langchain import CallbackHandler
-
+from src.evaluation.evaluators.ragas_evaluator import evaluate_batch, evaluate_state
 
 
 class EvaluateRequest(BaseModel):
@@ -63,7 +60,7 @@ def evaluate_single(request: EvaluateRequest) -> dict:
         )
         return evaluate_result
 
-    except Exception:
+    except Exception:  # noqa: BLE001 — evaluation must never crash the API; log/report failure instead
         return {"success": False, "message": "No valid row for evaluation"}
 
 
