@@ -11,7 +11,6 @@ from langfuse.langchain import CallbackHandler
 from pydantic import BaseModel
 from starlette.responses import StreamingResponse
 
-from api.evaluation import router as eval_router
 from api.streaming import stream_graph_events
 from src.config.settings import settings
 from src.graph.builder import build_graph
@@ -19,7 +18,15 @@ from src.graph.builder import build_graph
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Research Agent API")
-app.include_router(eval_router)
+
+try:
+    from api.evaluation import router as eval_router
+    app.include_router(eval_router)
+except ImportError:
+    logger.warning(
+        "Evaluation dependencies (ragas/datasets) not installed; "
+        "/evaluate endpoints are disabled. Install with: pip install -e '.[eval]'"
+    )
 
 graph = build_graph(interrupt_before=None)
 review_graph = build_graph(interrupt_before=["publisher"])
