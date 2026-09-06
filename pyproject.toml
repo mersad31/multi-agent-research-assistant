@@ -12,6 +12,7 @@ dependencies = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.30.0",
     "python-dotenv>=1.0.0",
+    "langfuse>=4.14.3",
 ]
 
 [project.optional-dependencies]
@@ -23,7 +24,6 @@ dev = [
 eval = [
     "ragas>=0.4.3",
     "datasets>=5.0.1",
-    "langfuse>=4.14.3",
 ]
 
 [tool.pytest.ini_options]
