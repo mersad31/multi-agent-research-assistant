@@ -2,26 +2,19 @@ from __future__ import annotations
 
 import logging
 import uuid
-
 from typing import Literal
 
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
-
 from langfuse import get_client
 from langfuse.langchain import CallbackHandler
-
 from pydantic import BaseModel
 from starlette.responses import StreamingResponse
 
-from api.streaming import stream_graph_events
 from api.evaluation import router as eval_router
-
-from src.graph.builder import build_graph
+from api.streaming import stream_graph_events
 from src.config.settings import settings
-
-
-
+from src.graph.builder import build_graph
 
 logger = logging.getLogger(__name__)
 

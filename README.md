@@ -6,6 +6,7 @@
   <img src="https://img.shields.io/badge/RAGAS-Evaluation-purple" alt="RAGAS" />
   <img src="https://img.shields.io/badge/Langfuse-Observability-black" alt="Langfuse" />
   <img src="https://img.shields.io/badge/License-MIT-yellow" alt="MIT" />
+  <img src="https://github.com/mersad31/multi-agent-research-assistant/actions/workflows/ci.yml/badge.svg" alt="CI" />
 </p>
 
 <h1 align="center">Multi-Agent Research Assistant</h1>

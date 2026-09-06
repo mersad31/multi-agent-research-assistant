@@ -3,12 +3,9 @@ from __future__ import annotations
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
+from src.config.settings import settings
 from src.models.schemas import PlanOutput
 from src.state.graph_state import GraphState, NodeStatus
-
-from src.config.settings import settings
-
-
 
 _PLANNER_SYSTEM_PROMPT = """
 You are a research planning manager.
@@ -56,8 +53,8 @@ def planner (state: GraphState) -> dict:
             "current_node": NodeStatus.PLANNER.value,
             "errors": [],
         }
-    except Exception as e:
+    except Exception as e: # noqa: BLE001 — LLM/tool failures are unpredictable; never crash the graph
         return {
-            "errors": [f"Planner node failed: {str(e)}"],
+            "errors": [f"Planner node failed: {e!s}"],
             "current_node": NodeStatus.PLANNER.value
         }

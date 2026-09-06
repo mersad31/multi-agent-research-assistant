@@ -20,6 +20,7 @@ def test_graph_state_has_expected_fields():
         "errors",
         "is_sufficient",
         "review_feedback",
+        "current_sub_tasks",
     }
 
     assert expected_fields == set(annotations.keys())

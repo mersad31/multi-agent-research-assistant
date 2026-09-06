@@ -3,14 +3,13 @@ from __future__ import annotations
 import json
 import os
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from langchain_core.tools import BaseTool, tool
 from pydantic import BaseModel, Field
 from tavily import TavilyClient
 
 from src.tools.exceptions import ToolInvocationError
-
 
 
 class SearchInput(BaseModel):
@@ -32,7 +31,7 @@ class SearchProvider(ABC):
         self,
         query: str,
         max_results: int = 5,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """ Execute a search query and return normalized search results. """
 
         raise NotImplementedError
@@ -40,7 +39,7 @@ class SearchProvider(ABC):
 
 class TavilySearchProvider(SearchProvider):
 
-    def __init__(self, api_key: Optional[str] = None) -> None:
+    def __init__(self, api_key: str | None = None) -> None:
         self.api_key = api_key or os.getenv("TAVILY_API_KEY")
         if not self.api_key:
             raise ToolInvocationError(
@@ -53,7 +52,7 @@ class TavilySearchProvider(SearchProvider):
         self,
         query: str,
         max_results: int = 5,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
 
         try:
             response = self.client.search(
@@ -67,7 +66,7 @@ class TavilySearchProvider(SearchProvider):
             )from exc
 
         raw_results = response.get("results", [])
-        normalized_results: List[Dict[str, Any]] = []
+        normalized_results: list[dict[str, Any]] = []
 
         for item in raw_results:
             normalized_results.append(
@@ -88,7 +87,7 @@ class MockSearchProvider(SearchProvider):
         self,
         query: str,
         max_results: int = 5
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
 
         return [
             {
@@ -106,7 +105,7 @@ class MockSearchProvider(SearchProvider):
 
 def create_search_provider(
     use_mock: bool = False,
-    api_key: Optional[str] = None,
+    api_key: str | None = None,
 ) -> SearchProvider:
     """ Create and return the appropriate search provider. """
 
@@ -118,7 +117,7 @@ def create_search_provider(
 
 def build_search_tool(
         use_mock: bool = False,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
 ) -> BaseTool:
     """ Build a LangChain-compatible search tool. """
 
@@ -135,7 +134,7 @@ def build_search_tool(
         except ToolInvocationError as e:
             return f"Error executing 'web_search': {e.message}. You may try a different query."
 
-        except Exception as e:
-            return f"An unexpected error occurred during search: {str(e)}"
+        except Exception as e: # noqa: BLE001 — the tool contract requires returning an error string, never raising
+            return f"An unexpected error occurred during search: {e!s}"
 
     return web_search

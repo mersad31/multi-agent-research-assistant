@@ -2,25 +2,24 @@ from __future__ import annotations
 
 import logging
 import math
-from typing import Any, Iterable, Mapping, Optional, Dict, List
+from collections.abc import Iterable, Mapping
+from typing import Any
 
 from datasets import Dataset
 from ragas import evaluate
 from ragas.metrics import (
-    faithfulness,
     answer_relevancy,
     context_precision,
-    context_recall
+    context_recall,
+    faithfulness,
 )
-
-
 
 logger = logging.getLogger(__name__)
 
 def _lookup_ground_truth(
         question: str,
-        golden_dataset: Optional[Iterable[Mapping[str, Any]]],
-) -> Optional[str]:
+        golden_dataset: Iterable[Mapping[str, Any]] | None,
+) -> str | None:
 
     if not golden_dataset or not question:
         return None
@@ -39,8 +38,8 @@ def _lookup_ground_truth(
     return None
 
 
-def _extract_context_from_sources(sources: Iterable[Mapping[str, Any]]) -> List[str]:
-    contexts: List[str] = []
+def _extract_context_from_sources(sources: Iterable[Mapping[str, Any]]) -> list[str]:
+    contexts: list[str] = []
 
     for source in sources or []:
         if not isinstance(source, dict):
@@ -95,14 +94,14 @@ def _send_scores_to_langfuse(
 
 
 def evaluate_state(
-        state: Dict[str, Any],
+        state: dict[str, Any],
         trace_id: str,
         *,
-        ground_truth: Optional[str] = None,
-        golden_dataset: Optional[Iterable[Mapping[str, Any]]] = None,
+        ground_truth: str | None = None,
+        golden_dataset: Iterable[Mapping[str, Any]] | None = None,
         langfuse_client: Any,
         judge_llm: Any = None,
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
 
     question = str(state.get("query") or "").strip()
     answer = str(state.get("report") or "").strip()
@@ -130,7 +129,7 @@ def evaluate_state(
             golden_dataset=golden_dataset,
         )
 
-    data: Dict[str, List[Any]] = {
+    data: dict[str, list[Any]] = {
         "question": [question],
         "answer": [answer],
         "contexts": [contexts],
@@ -193,12 +192,12 @@ def evaluate_state(
 
 
 def evaluate_batch(
-        rows: List[Dict[str, Any]],
-        trace_ids: List[Optional[str]],
+        rows: list[dict[str, Any]],
+        trace_ids: list[str | None],
         *,
         langfuse_client: Any,
         judge_llm: Any,
-) -> Optional[List[Dict[str, Any]]]:
+) -> list[dict[str, Any]] | None:
 
     if not rows:
         logger.warning("No rows provided for batch evaluation.")
@@ -206,7 +205,7 @@ def evaluate_batch(
 
     metrics = [faithfulness, answer_relevancy]
 
-    data: Dict[str, List[Any]] = {
+    data: dict[str, list[Any]] = {
         "question": [r["question"] for r in rows],
         "answer": [r["answer"] for r in rows],
         "contexts": [r["contexts"] for r in rows],
@@ -242,7 +241,7 @@ def evaluate_batch(
             logger.warning("RAGAS returned empty results.")
             return None
 
-        all_scores: List[Dict[str, Any]] = []
+        all_scores: list[dict[str, Any]] = []
 
         for i in range(len(result_df)):
             row_scores = result_df.iloc[i].to_dict()

@@ -1,7 +1,6 @@
-from src.graph.builder import build_graph
-
 from dotenv import load_dotenv
 
+from src.graph.builder import build_graph
 
 
 def main():

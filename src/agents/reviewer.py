@@ -3,12 +3,9 @@ from __future__ import annotations
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 
+from src.config.settings import settings
 from src.models.schemas import ReviewResult
 from src.state.graph_state import GraphState, NodeStatus
-
-from src.config.settings import settings
-
-
 
 _REVIEWER_SYSTEM_PROMPT = """
 You are a senior research reviewer. 
@@ -80,9 +77,9 @@ def reviewer(state: GraphState) -> dict:
             "count_retries": count_retries + 1 if not is_suff else count_retries
         }
 
-    except Exception as e:
+    except Exception as e: # noqa: BLE001 — LLM/tool failures are unpredictable; never crash the graph
         return {
-            "errors":  [f"Reviewer failed: {str(e)}"],
+            "errors":  [f"Reviewer failed: {e!s}"],
             "is_sufficient": True,
             "review_feedback": None,
             "count_retries": count_retries + 1,

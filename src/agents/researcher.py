@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 import json
-from typing import List
 
+from src.config.settings import settings
 from src.models.schemas import ResearchFinding
 from src.state.graph_state import GraphState, NodeStatus
 from src.tools.search import build_search_tool
-
-from src.config.settings import settings
 
 
 def researcher(state: GraphState) -> dict:
@@ -20,8 +18,8 @@ def researcher(state: GraphState) -> dict:
 
     search_tool = build_search_tool(use_mock=settings.USE_MOCK, api_key=settings.TAVILY_API_KEY)
 
-    new_findings: List[ResearchFinding] = []
-    node_errors: List[str] = []
+    new_findings: list[ResearchFinding] = []
+    node_errors: list[str] = []
 
     for task in sub_tasks:
         search_query = task["search_query"]
@@ -29,9 +27,8 @@ def researcher(state: GraphState) -> dict:
         try:
             raw_result = search_tool.invoke({"query": search_query})
 
-            if isinstance(raw_result, str) and (
-                    raw_result.startswith("An unexpected")
-                    or raw_result.startswith("Error executing")
+            if isinstance(raw_result, str) and raw_result.startswith(
+                ("An unexpected", "Error executing")
             ):
                 node_errors.append(
                     f"Search failed for '{search_query}': {raw_result}"
@@ -60,7 +57,7 @@ def researcher(state: GraphState) -> dict:
                 )
                 new_findings.append(finding)
 
-        except Exception as exc:
+        except Exception as exc: # noqa: BLE001 — a single malformed search result must not abort the whole batch
             node_errors.append(
                 f"Failed to parse tool output for query: '{search_query}': {exc}"
             )
