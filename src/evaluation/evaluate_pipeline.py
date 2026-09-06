@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import sys
 from pathlib import Path
 
 from langchain_openai import ChatOpenAI
@@ -10,18 +11,14 @@ from langfuse.langchain import CallbackHandler
 from langgraph.checkpoint.memory import MemorySaver
 from ragas.llms import LangchainLLMWrapper
 
-import sys
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.graph.builder import build_graph
 from src.config.settings import settings
-from src.evaluation.evaluators.ragas_evaluator import evaluate_state, evaluate_batch
-
-
-
+from src.evaluation.evaluators.ragas_evaluator import evaluate_batch, evaluate_state
+from src.graph.builder import build_graph
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
