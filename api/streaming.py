@@ -83,7 +83,8 @@ async def stream_graph_events(
                 if node_name != PUBLISHER_NODE:
                     continue
 
-                chunk = event.get("chunk")
+                data = event.get("data") or {}
+                chunk = data.get("chunk")
                 token = _extract_chunk_text(chunk)
 
                 if token:
