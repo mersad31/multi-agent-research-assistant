@@ -31,7 +31,7 @@ _llm = ChatOpenAI(
 _publisher_chain = _PUBLISHER_PROMPT | _llm
 
 
-def publisher(state: GraphState) -> dict:
+async def publisher(state: GraphState) -> dict:
     query = state.get("query")
     sources = state.get("sources")
 
@@ -46,7 +46,7 @@ def publisher(state: GraphState) -> dict:
         sources_text += f"[{idx}] Title: {s['title']}\nURL: {s['url']}\nContent: {s['content']}\n\n"
 
     try:
-        response = _publisher_chain.invoke({
+        response = await _publisher_chain.ainvoke({
             "query": query,
             "sources_text": sources_text.strip()
         })
