@@ -17,6 +17,11 @@
   publishing, and is continuously evaluated with <strong>RAGAS</strong> metrics streamed to <strong>Langfuse</strong>.
 </p>
 
+<p align="center">
+  🚀 <strong><a href="https://multi-agent-research-assistant-envw.onrender.com/docs">Live demo (Swagger UI)</a></strong>
+  — hosted on Render's free tier; the first request after a period of inactivity can take up to ~50s to wake up.
+</p>
+
 ---
 
 ## Why this project
