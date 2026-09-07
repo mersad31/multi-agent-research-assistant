@@ -32,8 +32,11 @@ graph = build_graph(interrupt_before=None)
 review_graph = build_graph(interrupt_before=["publisher"])
 
 _langfuse_client = get_client()
-if not _langfuse_client.auth_check():
-    logger.warning("Langfuse authentication failed at startup. Traces will not be sent to Langfuse.")
+try:
+    if not _langfuse_client.auth_check():
+        logger.warning("Langfuse authentication failed at startup. Traces will not be sent to Langfuse.")
+except Exception:  # noqa: BLE001 — a bad/misconfigured Langfuse key must never prevent the server from starting
+    logger.warning("Langfuse auth check raised an error at startup. Traces will not be sent to Langfuse.")
 
 
 class ChatRequest(BaseModel):
